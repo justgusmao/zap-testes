@@ -1,0 +1,4 @@
+24/06/2024 - Início do projeto, objetivo atual é apenas:
+    -conectar o o repositorio no Github
+    -conseguir fazer o upload no droplet na digital ocean
+
