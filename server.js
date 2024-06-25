@@ -1,23 +1,47 @@
 //Inicializa os items necessários para rodar a aplicação
 const express = require('express');
 const bodyParser = require('body-parser');
+const logger = require('./middlewares/logger');
+const auth = require('./middlewares/auth');
+
+//Carrega as configurações globais no ambiente
+require('dotenv').config({ path: 'config.env' });
 
 //Inicializa o app
 const app = express();
 app.use(bodyParser.json());
 
-// Rota para o webhook do WhatsApp
-app.post('/webhook/v1/whatsapp-messages', (req, res) => {
-    console.log('Request received');  // Log para depuração
+//Inicializa o logger apenas se ele estiver permitido
+if(process.env.USE_LOGGER === 'true'){
+    app.use(logger);
+}
 
-    if (req.body && req.body.messages) {
-        const message = req.body.messages[0].text.body;
-        console.log(`Received message: ${message}`);
-    }
-    res.sendStatus(200);  // Respondendo ao WhatsApp com status 200 OK
+//Prepara para receber estruturas mais complexas
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Usando middleware de autenticação para rotas específicas
+app.use('/secure', auth);
+
+
+// Importar rotas
+const indexRouter = require('./routes/index');
+const webhookRouter = require('./routes/webhook');
+const secureRouter = require('./routes/secure');
+//
+//Usar as rotas
+app.use('/', indexRouter);
+app.use('/webhook/v1', webhookRouter);
+app.use('/secure', auth, secureRouter);
+
+
+//Rotas simples
+//
+// Rota pública
+app.get('/', (req, res) => {
+    res.send('Olá, essa é a rota pública da Virtualbrand!');
 });
 
-const PORT = process.env.PORT || 5505;  // Porta para ouvir as mensagens
+const PORT = process.env.PORT || 5555;  // Porta para ouvir as mensagens
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
