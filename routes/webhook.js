@@ -3,7 +3,7 @@ const router = express.Router();
 
 
 // Rota para o webhook do WhatsApp
-router.post('/whatsapp-messages', (req, res) => {
+router.post('/whatsapp', (req, res) => {
     console.log('Request received');  // Log para depuração
 
     if (req.body && req.body.messages) {

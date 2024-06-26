@@ -1,14 +1,23 @@
 //Inicializa os items necessários para rodar a aplicação
 const express = require('express');
 const bodyParser = require('body-parser');
+const rateLimit = require('express-rate-limit');
+
 const logger = require('./middlewares/logger');
 const auth = require('./middlewares/auth');
 
 //Carrega as configurações globais no ambiente
 require('dotenv').config({ path: 'config.env' });
 
+// Limitação de taxa
+const limiter = rateLimit({
+    windowMs: 2 * 60 * 1000, // 2 minutos
+    max: 60 // Limite por IP a cada 2 minutos
+});
+
 //Inicializa o app
 const app = express();
+app.use(limiter);
 app.use(bodyParser.json());
 
 //Inicializa o logger apenas se ele estiver permitido
