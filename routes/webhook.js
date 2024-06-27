@@ -40,6 +40,24 @@ router.post('/whatsapp', (req, res) => {
     } else {
         res.sendStatus(404);
     }
+    const body = req.body;
+
+    if (body.object === 'whatsapp_business_account') {
+    body.entry.forEach(entry => {
+        entry.changes.forEach(change => {
+            if (change.field === 'messages') {
+                const messages = change.value.messages;
+                messages.forEach(message => {
+                    console.log(`Mensagem recebida de ${message.from}: ${message.text.body}`);
+                });
+            }
+        });
+    });
+    res.status(200).send('EVENT_RECEIVED');
+    
+    } else {
+        res.sendStatus(404);
+    }
 });
 
 module.exports = router;
