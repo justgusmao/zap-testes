@@ -19,13 +19,24 @@ router.get('/whatsapp', (req, res) => {
 
 // Rota para o envio de mensagens do WhatsApp
 router.post('/whatsapp', (req, res) => {
-    console.log('Request received');  // Log para depuração
+    const body = req.body;
 
-    if (req.body && req.body.messages) {
-        const message = req.body.messages[0].text.body;
-        console.log(`Whatsapp message: ${message}`);
+    if (body.object === 'whatsapp_business_account') {
+    body.entry.forEach(entry => {
+        entry.changes.forEach(change => {
+            if (change.field === 'messages') {
+                const messages = change.value.messages;
+                messages.forEach(message => {
+                    console.log(`Mensagem recebida de ${message.from}: ${message.text.body}`);
+                });
+            }
+        });
+    });
+    res.status(200).send('EVENT_RECEIVED');
+    
+    } else {
+        res.sendStatus(404);
     }
-    res.sendStatus(200);  // Respondendo ao WhatsApp com status 200 OK
 });
 
 module.exports = router;
